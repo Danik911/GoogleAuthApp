@@ -5,12 +5,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.googleauthapp.presentation.screens.login.LoginScreen
 
 @Composable
 fun SetupNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) {
-
+            LoginScreen(navController = navController)
         }
         composable(Screen.Profile.route) {
 
