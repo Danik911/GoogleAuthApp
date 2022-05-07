@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GoogleAuthApp</string>
+    <string name="login_subtitle">if  you want to access this app \nfirst you need to sign in</string>
 </resources>
