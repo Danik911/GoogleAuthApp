@@ -35,4 +35,12 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
             repository.insertLoginState(loginState = loginState)
         }
     }
+
+    fun throwExceptionToMessageState() {
+        _messageState.value = MessageBarState(error = MessageBarStateAccountException())
+    }
 }
+
+class MessageBarStateAccountException(
+    override val message: String? = "No accounts were found"
+) : Exception()

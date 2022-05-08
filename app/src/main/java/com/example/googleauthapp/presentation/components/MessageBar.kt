@@ -1,5 +1,6 @@
 package com.example.googleauthapp.presentation.components
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -48,7 +49,8 @@ fun MessageBar(messageBarState: MessageBarState) {
                     errorMessage = "Server is unavailable"
                 }
                 else -> {
-                    "${messageBarState.error.message}"
+                    errorMessage ="${messageBarState.error.message}"
+                    Log.d("MessageBar", "${messageBarState.error.message}")
                 }
             }
         }
