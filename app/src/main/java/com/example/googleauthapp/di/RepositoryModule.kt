@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.example.googleauthapp.data.remote.KtorApi
 import com.example.googleauthapp.data.repository.DataStoreOperationsImpl
 import com.example.googleauthapp.data.repository.RepositoryImpl
 import com.example.googleauthapp.domain.repository.DataStoreOperations
@@ -37,7 +38,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideRepository(dataStoreOperations: DataStoreOperations): Repository {
-        return RepositoryImpl(dataStoreOperations = dataStoreOperations)
+    fun provideRepository(dataStoreOperations: DataStoreOperations, ktorApi: KtorApi): Repository {
+        return RepositoryImpl(dataStoreOperations = dataStoreOperations, ktorApi = ktorApi)
     }
 }

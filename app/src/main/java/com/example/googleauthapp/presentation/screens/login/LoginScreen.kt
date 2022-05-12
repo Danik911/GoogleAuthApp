@@ -5,13 +5,18 @@ import android.util.Log
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.googleauthapp.domain.model.ApiRequest
+import com.example.googleauthapp.domain.model.ApiResponse
 import com.example.googleauthapp.domain.model.MessageBarState
+import com.example.googleauthapp.navigation.Screen
 import com.example.googleauthapp.presentation.common.StartActivityForResult
 import com.example.googleauthapp.presentation.common.signIn
+import com.example.googleauthapp.util.RequestState
 
 @Composable
 fun LoginScreen(
@@ -21,6 +26,7 @@ fun LoginScreen(
 
     val messageBarState by viewModel.messageState
     val loginState by viewModel.loginState
+    val apiResponse by viewModel.apiResponse
 
 
     Scaffold(
@@ -42,7 +48,7 @@ fun LoginScreen(
     StartActivityForResult(
         key = loginState,
         onResultReceived = { tokenId ->
-            Log.d("LoginScreen", tokenId)
+            viewModel.verifyTokenId(apiRequest = ApiRequest(tokenId = tokenId))
         },
         onDialogDismissed = {
             viewModel.login(loginState = false)
@@ -65,4 +71,25 @@ fun LoginScreen(
 
         }
     )
+    LaunchedEffect(key1 = apiResponse) {
+        when (apiResponse) {
+            is RequestState.Success -> {
+                val result = (apiResponse as RequestState.Success<ApiResponse>).data.success
+                if (result) {
+                    navigateToDetailsScreen(navController = navController)
+                } else {
+                    viewModel.login(false)
+                }
+            }
+            else -> {}
+        }
+    }
+}
+
+fun navigateToDetailsScreen(navController: NavHostController) {
+    navController.navigate(Screen.Profile.route) {
+        popUpTo(Screen.Login.route) {
+            inclusive = true
+        }
+    }
 }
