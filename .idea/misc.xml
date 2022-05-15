@@ -3,6 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Daniil/Downloads/GoogleAuth/app/src/main/res/drawable-notnight/ic_placeholder.xml" value="0.1045" />
+        <entry key="..\:/Users/Daniil/Downloads/GoogleAuth/app/src/main/res/drawable/ic_placeholder.xml" value="0.1045" />
+        <entry key="..\:/Users/Daniil/Downloads/GoogleAuth/app/src/main/res/drawable/ic_save.xml" value="0.1" />
+        <entry key="..\:/Users/Daniil/Downloads/GoogleAuth/app/src/main/res/drawable/ic_vertical_menu.xml" value="0.1" />
         <entry key="..\:/Users/Daniil/Downloads/GoogleAuthApp/app/src/main/res/drawable/ic_google_logo.xml" value="0.124" />
       </map>
     </option>
