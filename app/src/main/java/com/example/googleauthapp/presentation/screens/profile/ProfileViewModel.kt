@@ -68,6 +68,61 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+fun updateUserInfo() {
+        _apiResponse.value = RequestState.Loading
+        if (user.value != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val response = repository.getUser()
+                    verifyUserInfo(response)
+                    _messageBarState.value =
+                        MessageBarState(
+                            message = response.message,
+                            error = response.error
+                        )
+                } catch (e: Exception) {
+                    _apiResponse.value = RequestState.Error(e)
+                    _messageBarState.value = MessageBarState(error = e)
+                }
+            }
+        }
+    }
+
+    private fun verifyUserInfo(currentUser: ApiResponse) {
+        val (verified, exception) = if (firstName.value.isEmpty() || lastName.value.isEmpty()) {
+            Pair(false, FieldsAreEmptyException())
+        } else {
+            if (currentUser.user?.name?.split(" ")?.first() == firstName.value &&
+                currentUser.user.name.split(" ").last() == lastName.value
+            ) {
+                Pair(false, ValuesAreEqualException())
+            } else {
+                Pair(true, null)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (verified) {
+                val response = repository.updateUserInfo(
+                    userUpdate = UserUpdate(
+                        firstName = firstName.value,
+                        lastName = lastName.value
+                    )
+                )
+                _apiResponse.value = RequestState.Success(data = response)
+                _messageBarState.value =
+                    MessageBarState(
+                        message = response.message,
+                        error = response.error
+                    )
+            } else {
+                _apiResponse.value =
+                    RequestState.Success(data = ApiResponse(success = false, error = exception))
+                _messageBarState.value = MessageBarState(error = exception)
+            }
+        }
+    }
+
 
     fun updateFirstName(newName: String) {
         if (newName.length < 20) {
@@ -82,3 +137,11 @@ class ProfileViewModel @Inject constructor(
     }
 
 }
+
+class FieldsAreEmptyException(
+    override val message: String? = "Fields are empty"
+) : Exception()
+
+class ValuesAreEqualException(
+    override val message: String? = "Values have not been changed"
+) : Exception()

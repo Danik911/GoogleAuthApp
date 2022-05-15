@@ -1,6 +1,6 @@
 package com.example.googleauthapp.presentation.screens.profile
 
-import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,18 +15,18 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val apiResponse by profileViewModel.apiResponse
-    val clearSessionResponse by profileViewModel.clearSessionResponse
     val messageBarState by profileViewModel.messageBarState
 
     val user by profileViewModel.user
     val firstName by profileViewModel.firstName
     val lastName by profileViewModel.lastName
+    Log.d("ProfileScreen", "${messageBarState.error}")
 
     Scaffold(
         topBar = {
             ProfileTopBar(
                 onSave = {
-
+                    profileViewModel.updateUserInfo()
                 },
                 onDeleteAllConfirmed = {
 
@@ -46,7 +46,7 @@ fun ProfileScreen(
                     profileViewModel.updateLastName(it)
                 },
                 emailAddress = user?.email,
-                profilePhoto = user?.profileImage,
+                profilePhoto = user?.profilePicture,
                 onSignOutClicked = {
 
                 }
