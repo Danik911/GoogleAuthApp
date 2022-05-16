@@ -9,10 +9,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
+import com.example.googleauthapp.domain.model.ApiRequest
 import com.example.googleauthapp.domain.model.ApiResponse
 import com.example.googleauthapp.navigation.Screen
+import com.example.googleauthapp.presentation.common.StartActivityForResult
+import com.example.googleauthapp.presentation.common.signIn
 import com.example.googleauthapp.util.RequestState
 import com.google.android.gms.auth.api.identity.Identity
+import retrofit2.HttpException
 
 @ExperimentalCoilApi
 @Composable
@@ -36,7 +40,7 @@ fun ProfileScreen(
                     profileViewModel.updateUserInfo()
                 },
                 onDeleteAllConfirmed = {
-
+                    profileViewModel.deleteUser()
                 }
             )
         },
@@ -60,6 +64,40 @@ fun ProfileScreen(
             )
         }
     )
+
+    StartActivityForResult(
+        key = apiResponse,
+        onResultReceived = { tokenId ->
+            profileViewModel.verifyTokenId(
+                apiRequest = ApiRequest(tokenId = tokenId)
+            )
+        },
+        onDialogDismissed = {
+            profileViewModel.logIn(loginState = false)
+            navigateToLoginScreen(navController = navController)
+        }
+    ) { activityLauncher ->
+        if (apiResponse is RequestState.Success) {
+            val response = (apiResponse as RequestState.Success<ApiResponse>).data
+            if (response.error is HttpException && response.error.code() == 401) {
+                signIn(
+                    activity = activity,
+                    accountNotFound = {
+                        profileViewModel.logIn(false)
+                        navigateToLoginScreen(navController = navController)
+                    },
+                    launchActivityResult = {
+                        activityLauncher.launch(it)
+                    }
+                )
+            }
+        } else if (apiResponse is RequestState.Error) {
+            profileViewModel.logIn(loginState = false)
+            navigateToLoginScreen(navController = navController)
+        }
+
+    }
+
     LaunchedEffect(key1 = clearSessionResponse) {
         if (clearSessionResponse is RequestState.Success &&
             (clearSessionResponse as RequestState.Success<ApiResponse>).data.success

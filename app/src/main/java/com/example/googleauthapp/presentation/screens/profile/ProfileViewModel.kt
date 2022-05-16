@@ -143,7 +143,45 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-    fun logIn(loginState: Boolean){
+
+    fun deleteUser() {
+        _apiResponse.value = RequestState.Loading
+        _clearSessionResponse.value = RequestState.Loading
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = repository.deleteUser()
+                _clearSessionResponse.value = RequestState.Success(data = response)
+                _apiResponse.value = RequestState.Success(data = response)
+                _messageBarState.value =
+                    MessageBarState(message = response.message, error = response.error)
+            } catch (e: Exception) {
+                _apiResponse.value = RequestState.Error(e)
+                _messageBarState.value = MessageBarState(error = e)
+                _clearSessionResponse.value = RequestState.Error(e)
+            }
+        }
+    }
+
+    fun verifyTokenId(apiRequest: ApiRequest) {
+        _apiResponse.value = RequestState.Loading
+
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = repository.tokenVerification(apiRequest = apiRequest)
+                _apiResponse.value = RequestState.Success(data = response)
+                _messageBarState.value =
+                    MessageBarState(message = response.message, error = response.error)
+            }
+        } catch (e: Exception) {
+            _apiResponse.value = RequestState.Error(t = e)
+            _messageBarState.value = MessageBarState(error = e)
+        }
+
+    }
+
+
+    fun logIn(loginState: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertLoginState(loginState = loginState)
         }
