@@ -68,18 +68,14 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-fun updateUserInfo() {
+    fun updateUserInfo() {
         _apiResponse.value = RequestState.Loading
         if (user.value != null) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val response = repository.getUser()
                     verifyUserInfo(response)
-                    _messageBarState.value =
-                        MessageBarState(
-                            message = response.message,
-                            error = response.error
-                        )
+
                 } catch (e: Exception) {
                     _apiResponse.value = RequestState.Error(e)
                     _messageBarState.value = MessageBarState(error = e)
@@ -100,26 +96,56 @@ fun updateUserInfo() {
                 Pair(true, null)
             }
         }
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                if (verified) {
+                    val response = repository.updateUserInfo(
+                        userUpdate = UserUpdate(
+                            firstName = firstName.value,
+                            lastName = lastName.value
+                        )
+                    )
+                    _apiResponse.value = RequestState.Success(data = response)
+                    _messageBarState.value =
+                        MessageBarState(
+                            message = response.message,
+                            error = response.error
+                        )
+                } else {
+                    _apiResponse.value =
+                        RequestState.Success(data = ApiResponse(success = false, error = exception))
+                    _messageBarState.value = MessageBarState(error = exception)
+                }
+            }
+
+        } catch (e: Exception) {
+            _apiResponse.value = RequestState.Error(e)
+            _messageBarState.value = MessageBarState(error = e)
+        }
+    }
+
+    fun clearSession() {
+        _apiResponse.value = RequestState.Loading
+        _clearSessionResponse.value = RequestState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (verified) {
-                val response = repository.updateUserInfo(
-                    userUpdate = UserUpdate(
-                        firstName = firstName.value,
-                        lastName = lastName.value
-                    )
-                )
+            try {
+                val response = repository.signOut()
                 _apiResponse.value = RequestState.Success(data = response)
+                _clearSessionResponse.value = RequestState.Success(data = response)
                 _messageBarState.value =
-                    MessageBarState(
-                        message = response.message,
-                        error = response.error
-                    )
-            } else {
-                _apiResponse.value =
-                    RequestState.Success(data = ApiResponse(success = false, error = exception))
-                _messageBarState.value = MessageBarState(error = exception)
+                    MessageBarState(message = response.message, error = response.error)
+
+            } catch (e: Exception) {
+                _apiResponse.value = RequestState.Error(e)
+                _clearSessionResponse.value = RequestState.Error(e)
+                _messageBarState.value = MessageBarState(error = e)
             }
+        }
+    }
+    fun logIn(loginState: Boolean){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertLoginState(loginState = loginState)
         }
     }
 

@@ -1,12 +1,18 @@
 package com.example.googleauthapp.presentation.screens.profile
 
-import android.util.Log
+import android.app.Activity
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
+import com.example.googleauthapp.domain.model.ApiResponse
+import com.example.googleauthapp.navigation.Screen
+import com.example.googleauthapp.util.RequestState
+import com.google.android.gms.auth.api.identity.Identity
 
 @ExperimentalCoilApi
 @Composable
@@ -16,11 +22,12 @@ fun ProfileScreen(
 ) {
     val apiResponse by profileViewModel.apiResponse
     val messageBarState by profileViewModel.messageBarState
-
+    val clearSessionResponse by profileViewModel.clearSessionResponse
     val user by profileViewModel.user
     val firstName by profileViewModel.firstName
     val lastName by profileViewModel.lastName
-    Log.d("ProfileScreen", "${messageBarState.error}")
+
+    val activity = LocalContext.current as Activity
 
     Scaffold(
         topBar = {
@@ -48,9 +55,28 @@ fun ProfileScreen(
                 emailAddress = user?.email,
                 profilePhoto = user?.profilePicture,
                 onSignOutClicked = {
-
+                    profileViewModel.clearSession()
                 }
             )
         }
     )
+    LaunchedEffect(key1 = clearSessionResponse) {
+        if (clearSessionResponse is RequestState.Success &&
+            (clearSessionResponse as RequestState.Success<ApiResponse>).data.success
+        ) {
+            val oneTapClient = Identity.getSignInClient(activity)
+            oneTapClient.signOut()
+            profileViewModel.logIn(false)
+            navigateToLoginScreen(navController = navController)
+        }
+    }
+}
+
+
+private fun navigateToLoginScreen(navController: NavHostController) {
+    navController.navigate(Screen.Login.route) {
+        popUpTo(Screen.Profile.route) {
+            inclusive = true
+        }
+    }
 }
