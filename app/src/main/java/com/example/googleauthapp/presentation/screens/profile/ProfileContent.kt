@@ -1,6 +1,7 @@
 package com.example.googleauthapp.presentation.screens.profile
 
 
+import android.content.ContentProvider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,9 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
@@ -86,18 +90,19 @@ private fun CentralContent(
     profilePhoto: String?,
     onSignOutClicked: () -> Unit
 ) {
-    val painter = rememberImagePainter(data = profilePhoto) {
-        crossfade(1000)
-        placeholder(R.drawable.ic_placeholder)
-    }
 
-    Image(
-        modifier = Modifier
-            .padding(bottom = 40.dp)
-            .size(150.dp)
-            .clip(CircleShape),
-        painter = painter,
-        contentDescription = "Profile Photo")
+
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(profilePhoto)
+            .crossfade(1000)
+            .placeholder(drawableResId = R.drawable.ic_placeholder)
+            .transformations(CircleCropTransformation())
+            .build(),
+
+        contentDescription = "Profile image"
+    )
+
 
     OutlinedTextField(
         value = firstName,

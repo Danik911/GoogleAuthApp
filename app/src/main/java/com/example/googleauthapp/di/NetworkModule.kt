@@ -11,6 +11,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.JavaNetCookieJar
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.net.CookieManager
@@ -42,7 +43,7 @@ object NetworkModule {
     @Singleton
     @OptIn(ExperimentalSerializationApi::class)
     fun provideRetrofit(httpClient: OkHttpClient): Retrofit {
-        val mediaType = MediaType.get("application/json")
+        val mediaType = "application/json".toMediaType()
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(httpClient)
